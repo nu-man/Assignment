@@ -22,8 +22,8 @@ export default function Dashboard() {
             "auth-token": localStorage.getItem("token"),
           },
         });
-        console.log("Token:", token);
-        console.log(data);
+        // console.log("Token:", token);
+        // console.log(data);
       } catch (error) {
         localStorage.removeItem("token");
         navigate("/login", { replace: true }); // Redirect to login if error

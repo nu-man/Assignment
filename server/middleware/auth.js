@@ -6,8 +6,11 @@ export const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token,"bixmonk"); // Use your secret
-    console.log("Decoded token:", decoded); // Log to check token data
-    req.user = { _id: decoded.user_id }; // Use user_id from the token
+    // console.log("Decoded token:", decoded); // Log to check token data
+    req.user = { _id: decoded.user_id }; 
+    const userId = req.user._id;
+// console.log("User ID from token:", userId);
+// Use user_id from the token
     next();
   } catch (err) {
     console.error("Token validation failed:", err);

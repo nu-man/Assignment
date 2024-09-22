@@ -143,15 +143,11 @@ router.get("/auth", async (req, res) => {
 });
 
 /**
- * POST: /api/articles
+ * POST: /api/user/articles
  * Description: Adds a new article with optional media upload
  * Access: Protected
  */
-/**
- * POST: /api/user/add
- * Description: Adds a new article with optional media upload
- * Access: Protected
- */
+
 router.post("/add", authMiddleware, upload.single("media"), async (req, res) => {
     try {
       const { title, description, publishDate } = req.body;
@@ -164,19 +160,74 @@ router.post("/add", authMiddleware, upload.single("media"), async (req, res) => 
         title,
         description,
         publishDate,
-        media, // Store the media file path
+        image: media, // Store the media file path
         createdBy: req.user._id, // Pass the authenticated user ID
       });
   
       // Save to the database
       await newArticle.save();
       res.status(201).json(newArticle);
+    //   console.log("Uploaded file:", req.file);
+
     } catch (error) {
       console.error("Error creating article:", error);
       res.status(500).json({ error: "Server error" });
     }
   });
 
+/**
+ * GET: /api/user/articles
+ * Description: Sends data to frontend
+ * Access: Protected
+ */
+router.get("/articles", authMiddleware, async (req, res) => {
+    try {
+      // Fetch articles from the database
+      const articles = await Article.find().populate('createdBy', 'name'); // Assuming 'name' is a field in your User model
+      res.status(200).json(articles);
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
+
+/**
+ * PUT: /api/user/like
+ * Description: lioking/unlining
+ * Access: Protected
+ */
+
+  router.put('/like/:id', authMiddleware, async (req, res) => {
+    try {
+      const articleId = req.params.id;
+      const userId = req.user._id; // This should be defined
+  
+      const article = await Article.findById(articleId);
+      console.log("Article found:", article); // Log the article after fetching it
+  
+      if (!article) return res.status(404).json({ message: "Article not found" });
+  
+      // Ensure likes is an array
+      if (!Array.isArray(article.likes)) {
+        article.likes = [];
+      }
+  
+      if (article.likes.includes(userId)) {
+        article.likes = article.likes.filter(id => id.toString() !== userId.toString());
+      } else {
+        article.likes.push(userId);
+      }
+  
+      await article.save();
+      res.status(200).json({ message: "Success", likes: article.likes });
+    } catch (error) {
+      console.error("Error liking/unliking article:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+  
+  
 
 
 export default router;

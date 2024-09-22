@@ -11,7 +11,7 @@ export default function Login() {
   const navigate = useNavigate();
   useEffect(() => {
     if (localStorage.getItem("token")) {
-      navigate("/dashboard", { replace: true });
+      navigate("/browse", { replace: true });
     }
     // eslint-disable-next-line
   }, []);
@@ -28,7 +28,7 @@ export default function Login() {
     try {
       const { data } = await axios.post("/api/user/login", logindata);
       localStorage.setItem("token", data.token);
-      navigate("/dashboard", { replace: true });
+      navigate("/browse", { replace: true });
     } catch (error) {
       if (localStorage.getItem("token")) {
         localStorage.removeItem("token");
